@@ -211,7 +211,23 @@
       opacity: 0.18;
       mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
     }
-    .hero-eyebrow {
+    .hero-welcome {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 6vw, 5rem);
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: transparent;
+      -webkit-text-stroke: 0.5px rgba(255,255,255,0.18);
+      user-select: none;
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.3s forwards;
+      white-space: nowrap;
+    }
       font-size: 0.72rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
@@ -562,6 +578,7 @@
 <div class="hero">
   <div class="hero-grid"></div>
   <div class="hero-scan"></div>
+  <p class="hero-welcome">Welcome</p>
   <p class="hero-eyebrow">Content Creator Manager — Roblox</p>
   <h1 class="hero-name">ED</h1>
   <div class="hero-divider"></div>
@@ -647,9 +664,9 @@
       <span class="contact-handle">White Star Marketing</span>
       <span class="contact-arrow">↗</span>
     </a>
-    <a class="contact-card" href="https://www.roblox.com/users/4077897818/profile" target="_blank">
-      <span class="contact-platform">Roblox</span>
-      <span class="contact-handle">ED</span>
+    <a class="contact-card" href="https://discord.gg/s9jPhkSNaD" target="_blank">
+      <span class="contact-platform">Discord Username</span>
+      <span class="contact-handle">its_ed007</span>
       <span class="contact-arrow">↗</span>
     </a>
     <a class="contact-card" href="https://x.com/Sub2ED" target="_blank">
@@ -663,7 +680,7 @@
 <!-- FOOTER -->
 <footer>
   <span>ED — CCM Portfolio</span>
-  <span>© 2025</span>
+  <span>© 2026</span>
 </footer>
 
 <script>
