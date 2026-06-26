@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ED — CCM Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── RESET ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ─── TOKENS ─────────────────────────────── */
+    :root {
+      --black:      #080808;
+      --white:      #F0F0F0;
+      --gray-dark:  #111111;
+      --gray-mid:   #1c1c1c;
+      --gray-line:  #282828;
+      --silver:     #777777;
+      --silver-lt:  #aaaaaa;
+    }
+
+    /* ─── BASE ───────────────────────────────── */
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ─── CURSOR ─────────────────────────────── */
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--white);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 0.5px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.25s ease, height 0.25s ease, border-color 0.2s ease;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring {
+      width: 52px; height: 52px;
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    /* ─── LOADER ─────────────────────────────── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--white);
+    }
+    .loader-bar-wrap {
+      width: 200px;
+      height: 1px;
+      background: var(--gray-line);
+    }
+    .loader-bar {
+      height: 100%;
+      background: var(--white);
+      width: 0%;
+      animation: load 1.6s ease forwards;
+    }
+    @keyframes load { to { width: 100%; } }
+    .loader-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+
+    /* ─── NAV ────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3rem;
+      border-bottom: 0.5px solid transparent;
+      background: transparent;
+      transition: border-color 0.4s ease, background 0.4s ease, backdrop-filter 0.4s ease;
+    }
+    nav.scrolled {
+      border-color: var(--gray-line);
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(16px);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--silver);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* ─── AUDIO PLAYER ───────────────────────── */
+    .audio-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: none;
+      border: 0.5px solid var(--gray-line);
+      border-radius: 20px;
+      padding: 0.45rem 1rem;
+      color: var(--silver);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .audio-btn:hover { border-color: var(--silver); color: var(--white); }
+    .audio-btn .bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .audio-btn .bar {
+      width: 2px;
+      background: currentColor;
+      border-radius: 1px;
+      animation: bounce 0.8s ease infinite alternate;
+    }
+    .audio-btn .bar:nth-child(1) { height: 4px;  animation-delay: 0s; }
+    .audio-btn .bar:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+    .audio-btn .bar:nth-child(3) { height: 6px;  animation-delay: 0.3s; }
+    .audio-btn .bar:nth-child(4) { height: 12px; animation-delay: 0.45s; }
+    .audio-btn.paused .bar { animation-play-state: paused; height: 4px !important; }
+    @keyframes bounce { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+
+    /* ─── HERO ───────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-scan {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--white), transparent);
+      opacity: 0.15;
+      animation: scanline 6s ease-in-out infinite;
+    }
+    @keyframes scanline {
+      0%   { top: 0%;   opacity: 0; }
+      8%   { opacity: 0.15; }
+      92%  { opacity: 0.15; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--gray-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--gray-line) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.18;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--silver);
+      font-weight: 400;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.8s ease 1.8s forwards;
+    }
+    .hero-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(6rem, 18vw, 15rem);
+      font-weight: 700;
+      line-height: 0.86;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.9s ease 1.9s forwards;
+    }
+    .hero-divider {
+      width: 100%;
+      height: 0.5px;
+      background: var(--gray-line);
+      margin: 2rem 0 1.5rem;
+      opacity: 0;
+      animation: fadeIn 0.6s ease 2.2s forwards;
+    }
+    .hero-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.7s ease 2.3s forwards;
+    }
+    .hero-bio {
+      font-size: 0.92rem;
+      color: var(--silver-lt);
+      max-width: 340px;
+      line-height: 1.6;
+    }
+    .hero-status {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #444;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      right: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeIn 0.6s ease 2.8s forwards;
+    }
+    .scroll-hint span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--silver);
+      writing-mode: vertical-lr;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--silver), transparent);
+      animation: scrollPulse 2s ease infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { opacity: 0.3; transform: scaleY(1); }
+      50%      { opacity: 1;   transform: scaleY(0.8); }
+    }
+
+    /* ─── SECTIONS ───────────────────────────── */
+    section {
+      padding: 6rem 3rem;
+      border-top: 0.5px solid var(--gray-line);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    section.visible { opacity: 1; transform: translateY(0); }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.2rem;
+      margin-bottom: 3.5rem;
+    }
+    .section-num {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--silver);
+      font-weight: 400;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--white);
+    }
+
+    /* ─── ABOUT ──────────────────────────────── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .about-text {
+      font-size: 1.05rem;
+      color: var(--silver-lt);
+      line-height: 1.85;
+    }
+    .about-details { display: flex; flex-direction: column; }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 0.5px solid var(--gray-line);
+    }
+    .detail-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+    .detail-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--white);
+    }
+    .detail-value a { color: var(--silver-lt); transition: color 0.2s; }
+    .detail-value a:hover { color: var(--white); }
+
+    /* ─── CONTRIBUTIONS ──────────────────────── */
+    .contrib-card {
+      background: var(--gray-dark);
+      border: 0.5px solid var(--gray-line);
+      border-radius: 14px;
+      padding: 2.2rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 2.2rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .contrib-card:hover {
+      border-color: #3a3a3a;
+      transform: translateY(-3px);
+    }
+    .contrib-icon {
+      width: 72px; height: 72px;
+      border-radius: 14px;
+      background: var(--gray-mid);
+      border: 0.5px solid var(--gray-line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-align: center;
+      line-height: 1.4;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .contrib-icon img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+    .contrib-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+    .contrib-role {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-bottom: 0.9rem;
+    }
+    .contrib-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.82rem;
+      color: var(--silver-lt);
+    }
+    .stat-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--silver);
+    }
+    .member-count {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .contrib-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: 0.5px solid var(--gray-line);
+      border-radius: 7px;
+      color: var(--silver-lt);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .contrib-link:hover {
+      border-color: #555;
+      color: var(--white);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ─── CONTACT ────────────────────────────── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .contact-card {
+      background: var(--gray-dark);
+      border: 0.5px solid var(--gray-line);
+      border-radius: 12px;
+      padding: 1.8rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      transition: border-color 0.25s, transform 0.25s, background 0.25s;
+    }
+    .contact-card:hover {
+      border-color: #3a3a3a;
+      background: var(--gray-mid);
+      transform: translateY(-4px);
+    }
+    .contact-platform {
+      font-size: 0.66rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+    .contact-handle {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-top: 0.2rem;
+    }
+    .contact-arrow {
+      margin-top: auto;
+      font-size: 1.1rem;
+      color: var(--silver);
+      align-self: flex-end;
+      transition: transform 0.2s;
+    }
+    .contact-card:hover .contact-arrow { transform: translate(3px, -3px); }
+
+    /* ─── FOOTER ─────────────────────────────── */
+    footer {
+      border-top: 0.5px solid var(--gray-line);
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+
+    /* ─── ANIMATIONS ─────────────────────────── */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUDIO (remplace "music.mp3" par le nom de ton fichier) -->
+<audio id="bg-audio" loop>
+  <source src="music.mp3" type="audio/mpeg" />
+</audio>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-name">ED</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-label">Loading portfolio</div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <span class="nav-logo">ED</span>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="audio-btn paused" id="audio-btn" onclick="toggleAudio()">
+    <div class="bars">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <span id="audio-label">Music</span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-scan"></div>
+  <p class="hero-eyebrow">Content Creator Manager — Roblox</p>
+  <h1 class="hero-name">ED</h1>
+  <div class="hero-divider"></div>
+  <div class="hero-bottom">
+    <p class="hero-bio">yo i'm a brand new CCM, i'm not for hire rn</p>
+    <div class="hero-status">
+      <div class="status-dot"></div>
+      Not for hire
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">About</h2>
+  </div>
+  <div class="about-grid">
+    <p class="about-text">
+      yo guys, I'm mainly a roblox game tester and a game designer, but in addition I'm a project manager, a concept team member and now a Content Creator Manager too.
+    </p>
+    <div class="about-details">
+      <div class="detail-row">
+        <span class="detail-label">Role</span>
+        <span class="detail-value">Content Creator Manager</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Platform</span>
+        <span class="detail-value">Roblox</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status</span>
+        <span class="detail-value">Not for hire</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Roblox</span>
+        <span class="detail-value">
+          <a href="https://www.roblox.com/users/4077897818/profile" target="_blank">@ED ↗</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Contributions</h2>
+  </div>
+  <div class="contrib-card">
+    <div class="contrib-icon" id="contrib-icon">
+      Server<br>Icon
+    </div>
+    <div class="contrib-info">
+      <div class="contrib-name" id="game-name">Grand Blue : Online</div>
+      <div class="contrib-role">Content Creator Manager</div>
+      <div class="contrib-stats">
+        <div class="stat-dot"></div>
+        <span id="member-display" style="color:var(--silver);font-size:0.82rem;">Loading...</span>
+      </div>
+    </div>
+    <a class="contrib-link" href="https://discord.gg/YaDHR7drMz" target="_blank">
+      Join Discord ↗
+    </a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Contact</h2>
+  </div>
+  <div class="contact-grid">
+    <a class="contact-card" href="https://discord.gg/vvDgNZqJaN" target="_blank">
+      <span class="contact-platform">Discord</span>
+      <span class="contact-handle">White Star Marketing</span>
+      <span class="contact-arrow">↗</span>
+    </a>
+    <a class="contact-card" href="https://www.roblox.com/users/4077897818/profile" target="_blank">
+      <span class="contact-platform">Roblox</span>
+      <span class="contact-handle">ED</span>
+      <span class="contact-arrow">↗</span>
+    </a>
+    <a class="contact-card" href="https://x.com/Sub2ED" target="_blank">
+      <span class="contact-platform">X / Twitter</span>
+      <span class="contact-handle">@Sub2ED</span>
+      <span class="contact-arrow">↗</span>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>ED — CCM Portfolio</span>
+  <span>© 2025</span>
+</footer>
+
+<script>
+  /* ── CURSOR ── */
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function animateCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  })();
+
+  /* ── LOADER ── */
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('hidden');
+    }, 1800);
+  });
+
+  /* ── NAVBAR SCROLL ── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  /* ── SECTION REVEAL ── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  /* ── AUDIO ── */
+  const audio = document.getElementById('bg-audio');
+  const btn   = document.getElementById('audio-btn');
+  const label = document.getElementById('audio-label');
+  let playing = false;
+
+  function toggleAudio() {
+    if (playing) {
+      audio.pause();
+      btn.classList.add('paused');
+      label.textContent = 'Music';
+    } else {
+      audio.play().catch(() => {});
+      btn.classList.remove('paused');
+      label.textContent = 'Playing';
+    }
+    playing = !playing;
+  }
+
+  /* ── DISCORD API ── */
+  async function fetchDiscord() {
+    try {
+      const res  = await fetch('https://discord.com/api/v9/invites/YaDHR7drMz?with_counts=true');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      if (data.guild?.name) {
+        document.getElementById('game-name').textContent = data.guild.name;
+      }
+      if (data.approximate_member_count !== undefined) {
+        const el = document.getElementById('member-display');
+        el.innerHTML = '<span class="member-count">' +
+          data.approximate_member_count.toLocaleString('en-US') +
+          '</span>&nbsp;members';
+      }
+      if (data.guild?.icon && data.guild?.id) {
+        const url = `https://cdn.discordapp.com/icons/${data.guild.id}/${data.guild.icon}.png?size=128`;
+        const iconEl = document.getElementById('contrib-icon');
+        iconEl.innerHTML = `<img src="${url}" alt="Server icon" />`;
+      }
+    } catch {
+      document.getElementById('member-display').textContent = 'Discord server';
+    }
+  }
+  fetchDiscord();
+</script>
+</body>
+</html>
