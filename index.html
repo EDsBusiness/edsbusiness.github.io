@@ -539,17 +539,31 @@
     <span class="section-num">02</span>
     <h2 class="section-title">Contributions</h2>
   </div>
-  <div class="contrib-card">
-    <div class="contrib-icon" id="contrib-icon">Server<br>Icon</div>
-    <div class="contrib-info">
-      <div class="contrib-name" id="game-name">Grand Blue : Online</div>
-      <div class="contrib-role">Content Creator Manager</div>
-      <div class="contrib-stats">
-        <div class="stat-dot"></div>
-        <span id="member-display" style="color:var(--silver);font-size:0.82rem;">Loading...</span>
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="contrib-card">
+      <div class="contrib-icon" id="contrib-icon-1">Server<br>Icon</div>
+      <div class="contrib-info">
+        <div class="contrib-name" id="game-name-1">Grand Blue : Online</div>
+        <div class="contrib-role">Content Creator Manager</div>
+        <div class="contrib-stats">
+          <div class="stat-dot"></div>
+          <span id="member-display-1" style="color:var(--silver);font-size:0.82rem;">Loading...</span>
+        </div>
       </div>
+      <a class="contrib-link" href="https://discord.gg/YaDHR7drMz" target="_blank">Join Discord ↗</a>
     </div>
-    <a class="contrib-link" href="https://discord.gg/YaDHR7drMz" target="_blank">Join Discord ↗</a>
+    <div class="contrib-card">
+      <div class="contrib-icon" id="contrib-icon-2">Server<br>Icon</div>
+      <div class="contrib-info">
+        <div class="contrib-name" id="game-name-2">Anime Frenzy</div>
+        <div class="contrib-role">Content Creator Manager</div>
+        <div class="contrib-stats">
+          <div class="stat-dot"></div>
+          <span id="member-display-2" style="color:var(--silver);font-size:0.82rem;">Loading...</span>
+        </div>
+      </div>
+      <a class="contrib-link" href="https://discord.gg/animefrenzy" target="_blank">Join Discord ↗</a>
+    </div>
   </div>
 </section>
 
@@ -634,25 +648,26 @@
   }
 
   /* DISCORD API */
-  async function fetchDiscord() {
+  async function fetchDiscordServer(inviteCode, nameId, memberId, iconId) {
     try {
-      const res  = await fetch('https://discord.com/api/v9/invites/YaDHR7drMz?with_counts=true');
+      const res  = await fetch(`https://discord.com/api/v9/invites/${inviteCode}?with_counts=true`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      if (data.guild?.name) document.getElementById('game-name').textContent = data.guild.name;
+      if (data.guild?.name) document.getElementById(nameId).textContent = data.guild.name;
       if (data.approximate_member_count !== undefined) {
-        const el = document.getElementById('member-display');
+        const el = document.getElementById(memberId);
         el.innerHTML = '<span class="member-count">' + data.approximate_member_count.toLocaleString('en-US') + '</span>&nbsp;members';
       }
       if (data.guild?.icon && data.guild?.id) {
         const url = `https://cdn.discordapp.com/icons/${data.guild.id}/${data.guild.icon}.png?size=128`;
-        document.getElementById('contrib-icon').innerHTML = `<img src="${url}" alt="Server icon" />`;
+        document.getElementById(iconId).innerHTML = `<img src="${url}" alt="Server icon" />`;
       }
     } catch {
-      document.getElementById('member-display').textContent = 'Discord server';
+      document.getElementById(memberId).textContent = 'Discord server';
     }
   }
-  fetchDiscord();
+  fetchDiscordServer('YaDHR7drMz', 'game-name-1', 'member-display-1', 'contrib-icon-1');
+  fetchDiscordServer('animefrenzy', 'game-name-2', 'member-display-2', 'contrib-icon-2');
 </script>
 </body>
 </html>
